@@ -1,0 +1,41 @@
+Table User {
+  user_id int [pk, increment]
+  user_username varchar(50)
+  user_password varchar(255)
+  user_email varchar(100)
+}
+
+Table Friend {
+  requester_id int [pk]
+  receiver_id int [pk]
+  is_accepted boolean
+}
+
+Table ListOfGroup {
+  group_id int [pk, increment]
+  group_name varchar(100)
+}
+
+Table GroupMember {
+  group_id int [pk]
+  user_id int [pk]
+  role enum('OWNER', 'MEMBER')
+  joined_at datetime
+}
+
+Table Schedule {
+  schedule_id int [pk, increment]
+  group_id int
+  title varchar(100)
+  start_datetime datetime
+  end_datetime datetime
+  description text
+  latitude double
+  longitude double
+}
+
+Ref: Friend.requester_id > User.user_id
+Ref: Friend.receiver_id > User.user_id
+Ref: GroupMember.group_id > ListOfGroup.group_id
+Ref: GroupMember.user_id > User.user_id
+Ref: Schedule.group_id > ListOfGroup.group_id
