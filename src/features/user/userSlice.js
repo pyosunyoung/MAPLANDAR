@@ -16,18 +16,10 @@ export const loginWithEmail = createAsyncThunk(
   'user/loginWithEmail',
   async ({ email, password, navigate }, { dispatch,rejectWithValue }) => {
     try {
-      const response = await api.post('/api/auth/login', { email, password }); // post로 보내줌
+      const response = await api.post('/api/auth/login', { email, password }, { withCredentials: true }); // post로 보내줌
       console.log(response);
       //성공
       //Loginpage에서 처리
-      // 토큰저장
-      //1. local storage(페이지 닫혔다 켜져도 다시 유지)
-      //2. session storage (새로고침하면 유지, 페이지 닫히면 유지x)
-
-      const authHeader = response.headers.authorization;
-
-      const accessToken = authHeader.replace('Bearer ', '').trim();
-      sessionStorage.setItem('access_token', accessToken);
       dispatch(
         showToastMessage({
           message: "로그인을 성공했습니다!",
@@ -82,9 +74,10 @@ export const registerUser = createAsyncThunk(
   'user/registerUser',
   async ({ values, navigate }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await api.post('/api/auth/register', {
+      console.log("uservalues", values);
+      const response = await api.post('/api/auth/register', 
         values,
-      });
+      );
 
       dispatch(
         showToastMessage({
@@ -112,7 +105,7 @@ export const checkEmailAvailability = createAsyncThunk(
   async (email, { rejectWithValue }) => {
     try {
       console.log("email", email);
-      const response = await api.get("/api/email/exist", {
+      const response = await api.get("/api/auth/check-email", {
         params: { email: email },
       });
       console.log("중복 데이터 확인", response.data);

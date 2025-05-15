@@ -168,7 +168,7 @@ const RegisterPage = () => {
               required
               ref={emailInputRef}
             />
-            <CheckButton type="button" >
+            <CheckButton type="button" onClick={checkEmail}>
               중복검사
             </CheckButton>
           </InputRow>

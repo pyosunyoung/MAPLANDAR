@@ -11,6 +11,7 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: true,
+  credentials: 'include', // ← 이거 꼭 있어야 쿠키 저장됨
 });
 /**
  * console.log all requests and responses
@@ -19,10 +20,6 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // 요청을 보내기 전에 토큰 추가
-    const token = sessionStorage.getItem("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => {
