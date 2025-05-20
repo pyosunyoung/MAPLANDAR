@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserProfile, logout } from '../../features/user/userSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Cookies from 'js-cookie';
 const UserTab = styled.div`
   position: relative;
 `;
@@ -76,14 +77,17 @@ const User = () => {
 const { profile, userRole } = useSelector((state) => state.user);
   const [notificationCount, setNotificationCount] = useState(2);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const token = sessionStorage.getItem("access_token");
+  const token = Cookies.get('JSESSIONID');
+  console.log("token",token);
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
+    const token = Cookies.get('JSESSIONID');
+    console.log("token",token);
   };
   
 
   const handleLogout = () => {
-    
+    console.log("token",token);
     dispatch(logout({ token, navigate }));
     // navigate("/login"); // 바로 이동
   };

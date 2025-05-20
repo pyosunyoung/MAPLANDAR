@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -9,8 +9,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'; // 추가
 import styled from 'styled-components';
-import UserProfileBox from '../Layout/component/UserProfile'
+import UserProfileBox from '../Layout/component/UserProfile';
 import ToastMessage from '../common/ToastMessage';
+import FriendSidebar from './component/FriendSidebar';
+import { useDispatch } from 'react-redux';
+import { friendsPending } from '../features/user/userSlice';
 const Container = styled.div`
   margin: 0 auto;
   max-width: 70rem;
@@ -87,14 +90,14 @@ const AuthButton = styled.button`
 `;
 const SideMenu = styled.div`
   height: 100vh;
-  width: ${(props) => (props.open ? '250px' : '0')};
+  width: ${(props) => (props.open ? '300px' : '0')};
   position: absolute;
   top: 0;
   right: 0;
-  background-color: rgb(189, 42, 42);
+  background-color: #f5f6f8;
   overflow-x: hidden;
   transition: width 0.5s ease;
-  padding-top: 60px;
+  padding-top: 0px;
   z-index: 2;
 `;
 
@@ -105,7 +108,7 @@ const CloseButton = styled.button`
   font-size: 36px;
   border: none;
   background: none;
-  color: white;
+  color: black;
   cursor: pointer;
 `;
 
@@ -136,7 +139,6 @@ const UserBox = styled.div`
   gap: 8px;
   font-family: 'Inter';
   font-size: 14px;
-  
 `;
 const Footer = styled.footer`
   border-top: 1px solid #e5e7eb;
@@ -166,14 +168,18 @@ const BurgerMenu = styled(FontAwesomeIcon)`
   cursor: pointer;
 `;
 
-const AppLayout = ({  setAuthenticate }) => {
+const AppLayout = ({ setAuthenticate }) => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuList = ['공지사항', '내정보', '매칭', 'AI매칭'];
-  const authenticate = false;
+  const authenticate = true;
+  const dispatch = useDispatch();
+  useEffect(()=>{
+    dispatch(friendsPending());
+  },[])
   return (
     <Container>
-      <ToastMessage/>
+      <ToastMessage />
       <Navbar>
         {/* 왼쪽: 로고 */}
         <LeftSection>
@@ -190,14 +196,12 @@ const AppLayout = ({  setAuthenticate }) => {
           {authenticate ? (
             <>
               <ButtonGroup>
-                
                 <AlarmIconButton onClick={() => alert('알림창 열기')}>
-                <FontAwesomeIcon icon={faBell} />
+                  <FontAwesomeIcon icon={faBell} />
                 </AlarmIconButton>
                 <UserBox>
-        <UserProfileBox />
-        
-      </UserBox>
+                  <UserProfileBox />
+                </UserBox>
                 <Button onClick={() => setMenuOpen(true)}>
                   <FontAwesomeIcon icon={faUserFriends} />
                   <div>친구창</div>
@@ -220,15 +224,27 @@ const AppLayout = ({  setAuthenticate }) => {
         </RightSection>
       </Navbar>
 
-      <SideMenu open={menuOpen}>
+      {/* <SideMenu open={menuOpen}>
         <CloseButton onClick={() => setMenuOpen(false)}>&times;</CloseButton>
         <SideMenuList>
           {menuList.map((menu, index) => (
             <button key={index}>{menu}</button>
           ))}
         </SideMenuList>
-      </SideMenu>
-
+      </SideMenu> */}
+      <SideMenu open={menuOpen}>
+  <CloseButton onClick={() => setMenuOpen(false)}>&times;</CloseButton>
+  <FriendSidebar
+    friendRequests={[
+      { name: '김철수' },
+      { name: '박영희' },
+    ]}
+    friends={[
+      { name: '홍길동', status: '게임 중' },
+      { name: '이순신', status: '오프라인' },
+    ]}
+  />
+</SideMenu>
       <main>
         <Outlet />
       </main>

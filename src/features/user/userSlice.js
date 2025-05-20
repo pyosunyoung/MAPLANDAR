@@ -188,6 +188,126 @@ export const loginWithToken = createAsyncThunk(
   }
 );
 
+export const friendsRequest = createAsyncThunk(
+  'user/friendRequest',
+  async ({ receiverEmail}, { dispatch, rejectWithValue }) => {
+    try {
+      console.log("uservalues", receiverEmail);
+      const response = await api.post('/api/friends/request', 
+        {receiverEmail},
+      );
+
+      dispatch(
+        showToastMessage({
+          message: '친구 요청을 성공했습니다!',
+          status: 'success',
+        })
+      );
+      return response.data;
+    } catch (error) {
+      dispatch(
+        showToastMessage({
+          message: '해당 이메일을 찾을 수 없습니다.',
+          status: 'error',
+        })
+      );
+      return rejectWithValue(error.response?.data || '해당 이메일을 찾을 수 없습니다.');
+    }
+  }
+);
+
+export const friendsPending = createAsyncThunk(
+  'user/friendsPending',
+  async ({ }, { dispatch, rejectWithValue }) => {
+    try {
+      
+      const response = await api.get('/api/friends/pending', 
+        
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || '해당 이메일을 찾을 수 없습니다.');
+    }
+  }
+);
+
+export const friendsAccept = createAsyncThunk(
+  'user/friendsAccept',
+  async ({ values, navigate }, { dispatch, rejectWithValue }) => {
+    try {
+      console.log("uservalues", values);
+      const response = await api.post('/api/friends/accept', 
+        values,
+      );
+
+      dispatch(
+        showToastMessage({
+          message: '친구 요청을 수락했습니다!',
+          status: 'success',
+        })
+      );
+      navigate('/login');
+
+      return response.data;
+    } catch (error) {
+      dispatch(
+        showToastMessage({
+          message: '친구 요청 실패',
+          status: 'error',
+        })
+      );
+      return rejectWithValue(error.response?.data || '해당 이메일을 찾을 수 없습니다.');
+    }
+  }
+);
+
+export const friendsDecline = createAsyncThunk(
+  'user/friendsDecline',
+  async ({ values, navigate }, { dispatch, rejectWithValue }) => {
+    try {
+      console.log("uservalues", values);
+      const response = await api.post('/api/friends/decline', 
+        values,
+      );
+
+      dispatch(
+        showToastMessage({
+          message: '친구 요청을 거절했습니다!',
+          status: 'error',
+        })
+      );
+      navigate('/login');
+
+      return response.data;
+    } catch (error) {
+      dispatch(
+        showToastMessage({
+          message: '해당 이메일을 찾을 수 없습니다.',
+          status: 'error',
+        })
+      );
+      return rejectWithValue(error.response?.data || '해당 이메일을 찾을 수 없습니다.');
+    }
+  }
+);
+
+export const friendsList = createAsyncThunk(
+  'user/friendsList',
+  async ({ values, navigate }, { dispatch, rejectWithValue }) => {
+    try {
+      console.log("uservalues", values);
+      const response = await api.get('/api/friends/list', 
+        values,
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || '친구 목록 조회 실패.');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState: {
