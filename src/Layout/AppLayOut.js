@@ -13,7 +13,8 @@ import UserProfileBox from '../Layout/component/UserProfile';
 import ToastMessage from '../common/ToastMessage';
 import FriendSidebar from './component/FriendSidebar';
 import { useDispatch } from 'react-redux';
-import { friendsPending } from '../features/user/userSlice';
+import { fetchUserProfile, friendsList, friendsPending } from '../features/user/userSlice';
+import Cookies from 'js-cookie';
 const Container = styled.div`
   margin: 0 auto;
   max-width: 70rem;
@@ -174,9 +175,14 @@ const AppLayout = ({ setAuthenticate }) => {
   const menuList = ['공지사항', '내정보', '매칭', 'AI매칭'];
   const authenticate = true;
   const dispatch = useDispatch();
-  useEffect(()=>{
+  const cookie = Cookies.get('JSESSIONID');
+  useEffect(() => {
+  if (cookie) {
+    dispatch(fetchUserProfile());
     dispatch(friendsPending());
-  },[])
+    dispatch(friendsList());
+  }
+}, [dispatch, cookie]);
   return (
     <Container>
       <ToastMessage />
@@ -193,7 +199,7 @@ const AppLayout = ({ setAuthenticate }) => {
 
         {/* 오른쪽: 로그인 / 햄버거 */}
         <RightSection>
-          {authenticate ? (
+          {cookie ? (
             <>
               <ButtonGroup>
                 <AlarmIconButton onClick={() => alert('알림창 열기')}>

@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../utils/api'; // api.js가 'src/utils/api.js'에 있을 경우
 
 import { showToastMessage } from '../common/uiSlice';
-
+import Cookies from 'js-cookie';
 // 지침 사항
 // 툴킷 로그인, 회원가입 샘플
 // 예시이니 변경있을 수 있음.
@@ -49,10 +49,10 @@ export const loginWithGoogle = createAsyncThunk(
 
 export const logout = createAsyncThunk(
   'user/logout',
-  async (_, { dispatch }) => {
+  async (cookie, { dispatch }) => {
     try {
-      await api.post('/auth/logout', {});
-      sessionStorage.removeItem('access_token');
+      await api.post('/api/auth/logout', {
+      });
       dispatch(
         showToastMessage({
           message: '로그아웃을 완료했습니다!',
@@ -123,8 +123,8 @@ export const fetchUserProfile = createAsyncThunk(
   'user/fetchUserProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/mypage');
-      console.log('Redux: 응답 데이터:', response.data);
+      const response = await api.get('/api/auth/me');
+      console.log('Redux: 응답 데이터:', response.data.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -192,9 +192,8 @@ export const friendsRequest = createAsyncThunk(
   'user/friendRequest',
   async ({ receiverEmail}, { dispatch, rejectWithValue }) => {
     try {
-      console.log("uservalues", receiverEmail);
       const response = await api.post('/api/friends/request', 
-        {receiverEmail},
+        {receiverEmail : receiverEmail}
       );
 
       dispatch(
@@ -218,14 +217,11 @@ export const friendsRequest = createAsyncThunk(
 
 export const friendsPending = createAsyncThunk(
   'user/friendsPending',
-  async ({ }, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
-      
-      const response = await api.get('/api/friends/pending', 
-        
-      );
-
-      return response.data;
+      const response = await api.get('/api/friends/pending');
+      console.log("친구요청창 데이터",response.data.data);
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || '해당 이메일을 찾을 수 없습니다.');
     }
@@ -234,11 +230,13 @@ export const friendsPending = createAsyncThunk(
 
 export const friendsAccept = createAsyncThunk(
   'user/friendsAccept',
-  async ({ values, navigate }, { dispatch, rejectWithValue }) => {
+  async ({ requestId, receievId }, { dispatch, rejectWithValue }) => {
     try {
-      console.log("uservalues", values);
       const response = await api.post('/api/friends/accept', 
-        values,
+        {
+          requesterId: requestId,
+          receiverId: receievId
+        }
       );
 
       dispatch(
@@ -247,8 +245,6 @@ export const friendsAccept = createAsyncThunk(
           status: 'success',
         })
       );
-      navigate('/login');
-
       return response.data;
     } catch (error) {
       dispatch(
@@ -264,11 +260,13 @@ export const friendsAccept = createAsyncThunk(
 
 export const friendsDecline = createAsyncThunk(
   'user/friendsDecline',
-  async ({ values, navigate }, { dispatch, rejectWithValue }) => {
+  async ({  requestId, receievId }, { dispatch, rejectWithValue }) => {
     try {
-      console.log("uservalues", values);
       const response = await api.post('/api/friends/decline', 
-        values,
+        {
+          requesterId: requestId,
+          receiverId: receievId
+        }
       );
 
       dispatch(
@@ -277,8 +275,6 @@ export const friendsDecline = createAsyncThunk(
           status: 'error',
         })
       );
-      navigate('/login');
-
       return response.data;
     } catch (error) {
       dispatch(
@@ -294,13 +290,12 @@ export const friendsDecline = createAsyncThunk(
 
 export const friendsList = createAsyncThunk(
   'user/friendsList',
-  async ({ values, navigate }, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
-      console.log("uservalues", values);
+      
       const response = await api.get('/api/friends/list', 
-        values,
       );
-
+      console.log("친구 리스트", response.data.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || '친구 목록 조회 실패.');
@@ -319,6 +314,8 @@ const userSlice = createSlice({
     profile: null,
     emailmessage: "",
     checkEmailError:null,
+    friendsRequestList:[],
+    friendsList:[],
   },
   reducers: {
     // 직접적으로 호출
@@ -381,15 +378,39 @@ const userSlice = createSlice({
         state.emailmessage = null;
         state.checkEmailError = action.payload;
       })
+      .addCase(friendsPending.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(friendsPending.fulfilled, (state, action) => {
+        state.loading = false;
+        state.friendsRequestList = action.payload;
+        state.loginError = null;
+      })
+      .addCase(friendsPending.rejected, (state, action) => {
+        state.loading = false;
+        state.loginError = action.payload;
+      })
       .addCase(fetchUserProfile.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.profile = action.payload;
+        state.profile = action.payload.data;
         state.loginError = null;
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.loginError = action.payload;
+      })
+      .addCase(friendsList.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(friendsList.fulfilled, (state, action) => {
+        state.loading = false;
+        state.friendsList = action.payload.data;
+        state.loginError = null;
+      })
+      .addCase(friendsList.rejected, (state, action) => {
         state.loading = false;
         state.loginError = action.payload;
       })

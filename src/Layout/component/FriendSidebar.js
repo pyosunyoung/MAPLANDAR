@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,9 +6,11 @@ import {
   faUserPlus,
   faSearch,
   faUserCircle,
+  faUser,
 } from '@fortawesome/free-solid-svg-icons';
-import { friendsRequest } from '../../features/user/userSlice';
-import { useDispatch } from 'react-redux';
+import { friendsAccept, friendsDecline, friendsPending, friendsRequest } from '../../features/user/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import Cookies from 'js-cookie';
 const Sidebar = styled.div`
   width: 300px;
   background-color: #f5f6f8;
@@ -140,25 +142,90 @@ const RequestButton = styled.button`
     background-color: #e2e2e2;
   }
 `;
+
 const Status = styled.span`
   color: ${(props) => (props.isActive ? '#4caf50' : '#aaa')};
 `;
 
+const RequestItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 8px;
+  background-color: #f8f8f8;
+  border-radius: 6px;
+`;
+
+const RequestInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const AcceptButton = styled.button`
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+
+  &:hover {
+    background-color: #43a047;
+  }
+`;
+
+const DeclineButton = styled.button`
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+
+  &:hover {
+    background-color: #d32f2f;
+  }
+`;
+
+
 const FriendSidebar = ({ friendRequests = [], friends = [] }) => {
+  const {friendsRequestList = [], profile, friendsList} = useSelector((state)=>state.user);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [receiverEmail, setEmail] = useState('');
   const dispatch = useDispatch();
+  const cookie = Cookies.get('JSESSIONID');
+  const receievId = profile?.userId;
   const handleFriendRequest = () => {
     if (receiverEmail.trim()) {
       // 요청 로직 연결 (예: API 호출 또는 상태 업데이트)
       console.log(`친구 요청 전송: ${receiverEmail}`);
-      dispatch(friendsRequest(receiverEmail))
+      dispatch(friendsRequest({receiverEmail, cookie}))
       setEmail('');
     } else {
       alert('아이디를 입력해주세요.');
+      console.log("receievId",receievId);
     }
+    console.log(friendsRequestList);
   };
+  const handleAccept = (requestId) => {
+  console.log(`수락: ${requestId}`);
+  dispatch(friendsAccept({requestId, receievId}))
+};
+
+const handleDecline = (requestId) => {
+  console.log(`거절: ${requestId}`);
+  dispatch(friendsDecline({requestId, receievId}))
+}; // 실시간 친구 요청, 친구 목록 적용하는 로직 설계해야할듯.
   return (
     <Sidebar>
       <UserSection>
@@ -166,7 +233,7 @@ const FriendSidebar = ({ friendRequests = [], friends = [] }) => {
           <UserAvatar>
             <FontAwesomeIcon icon={faUserCircle} />
           </UserAvatar>
-          <UserName>표선영</UserName>
+          <UserName>{profile?.name}</UserName>
         </UserInfo>
         <Divider />
       </UserSection>
@@ -181,22 +248,22 @@ const FriendSidebar = ({ friendRequests = [], friends = [] }) => {
           </Icon>
         </Icons>
       </Header>
-
+    
       <RequestSection onClick={() => setShowRequestModal(true)}>
         친구 요청
-        {friendRequests.length > 0 && (
-          <RequestBadge>{friendRequests.length}</RequestBadge>
+        {friendsRequestList?.length > 0 && (
+          <RequestBadge>{friendsRequestList?.length}</RequestBadge>
         )}
       </RequestSection>
       <Divider />
-      <ListTitle>친구 목록 ({friends.length})</ListTitle>
+      <ListTitle>친구 목록 ({friendsList?.length})</ListTitle>
       <FriendList>
-        {friends.map((friend, index) => (
+        {friendsList?.map((friend, index) => (
           <FriendItem key={index}>
-            <span>{friend.name}</span>
-            <Status isActive={friend.status === '게임 중'}>
-              {friend.status}
-            </Status>
+            <span>{friend?.name}</span>
+            {/* <Status isActive={friend?.status === '게임 중'}>
+              {friend?.status}
+            </Status> */}
           </FriendItem>
         ))}
       </FriendList>
@@ -207,12 +274,23 @@ const FriendSidebar = ({ friendRequests = [], friends = [] }) => {
           <Modal.Title>친구 요청</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {friendRequests.length === 0
-            ? '친구 요청이 없습니다.'
-            : friendRequests.map((req, idx) => (
-                <div key={idx}>{req.name} 님이 친구 요청을 보냈습니다.</div>
-              ))}
-        </Modal.Body>
+  {(!friendsRequestList || friendsRequestList.length === 0) ? (
+    '친구 요청이 없습니다.'
+  ) : (
+    friendsRequestList.map((req, idx) => (
+      <RequestItem key={idx}>
+        <RequestInfo>
+          <FontAwesomeIcon icon={faUser} />
+          <span><strong>{req.name}</strong> 님이 친구 요청을 보냈습니다.</span>
+        </RequestInfo>
+        <ActionButtons>
+          <AcceptButton onClick={() => handleAccept(req.userId)}>수락</AcceptButton>
+          <DeclineButton onClick={() => handleDecline(req.userId)}>거절</DeclineButton>
+        </ActionButtons>
+      </RequestItem>
+    ))
+  )}
+</Modal.Body>
         <Modal.Footer>
           <Button
             variant="secondary"

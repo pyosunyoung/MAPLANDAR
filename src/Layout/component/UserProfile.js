@@ -8,7 +8,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile, logout } from '../../features/user/userSlice';
+import { fetchUserProfile, friendsPending, logout } from '../../features/user/userSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Cookies from 'js-cookie';
 const UserTab = styled.div`
@@ -77,18 +77,19 @@ const User = () => {
 const { profile, userRole } = useSelector((state) => state.user);
   const [notificationCount, setNotificationCount] = useState(2);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const token = Cookies.get('JSESSIONID');
-  console.log("token",token);
+  const cookie = Cookies.get('JSESSIONID');
+  console.log("cookie",cookie);
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
     const token = Cookies.get('JSESSIONID');
-    console.log("token",token);
+    console.log("cookie",cookie);
+    console.log("profile", profile);
   };
   
 
   const handleLogout = () => {
-    console.log("token",token);
-    dispatch(logout({ token, navigate }));
+    console.log("token",cookie);
+    dispatch(logout({ cookie, navigate }));
     // navigate("/login"); // 바로 이동
   };
   const handleGoMypage = () => {
