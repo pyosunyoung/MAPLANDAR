@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import { useSelector } from 'react-redux';
 import styled from "styled-components";
+import FriendModal from './Modal/FriendModal';
 
 const Container = styled.div`
   
@@ -98,6 +100,8 @@ const GroupCard = styled.div`
   }
 `;
 const HomePage = () => {
+  const [showModal,setShowModal] = useState(false);
+  const { rofile, friendsList} = useSelector((state)=>state.user);
   const dummyGroups = [
     "솟빛중 3-4",
     "구름톤",
@@ -106,13 +110,16 @@ const HomePage = () => {
     "백석대 녀석들",
     "반송고 3-9",
   ];
+  const handleCreateCalender = () => {
+    setShowModal(true);
+  }
   return (
     <Container>
     <TitleSection>
       <MainTitle>공유 캘린더</MainTitle>
       <SubTitle>일정을 공유하고 약속을 잡으세요</SubTitle>
       <ButtonGroup>
-        <button className="create">캘린더 생성</button>
+        <button className="create" onClick={handleCreateCalender}>캘린더 생성</button>
         <button className="search">약속장소 찾기</button>
       </ButtonGroup>
     </TitleSection>
@@ -137,6 +144,15 @@ const HomePage = () => {
         ))}
       </GroupGrid>
     </GroupSection>
+    <FriendModal
+  show={showModal}
+  handleClose={() => setShowModal(false)}
+  onNext={(selectedFriends) => {
+    console.log("선택된 친구들:", selectedFriends.map(f => f.id));
+    setShowModal(false);
+    // 다음 로직 처리
+  }}
+/>
   </Container>
 );
 };
