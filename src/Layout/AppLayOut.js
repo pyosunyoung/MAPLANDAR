@@ -12,9 +12,10 @@ import styled from 'styled-components';
 import UserProfileBox from '../Layout/component/UserProfile';
 import ToastMessage from '../common/ToastMessage';
 import FriendSidebar from './component/FriendSidebar';
-import { useDispatch } from 'react-redux';
-import { fetchUserProfile, friendsList, friendsPending } from '../features/user/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchFriendsList, fetchUserProfile, friendsList, friendsPending } from '../features/user/userSlice';
 import Cookies from 'js-cookie';
+import { fetchCalendarList } from '../features/calendar/calendarSlice';
 const Container = styled.div`
   margin: 0 auto;
   max-width: 70rem;
@@ -179,9 +180,10 @@ const AppLayout = ({ setAuthenticate }) => {
   useEffect(() => {
   if (cookie) {
     dispatch(fetchUserProfile());
-    dispatch(friendsPending());
-    dispatch(friendsList());
-  }
+    dispatch(friendsPending());// 친구 요청창 불러옴
+    dispatch(fetchFriendsList()); // 친구 리스트 불러옴
+    dispatch(fetchCalendarList());
+  } 
 }, [dispatch, cookie]);
   return (
     <Container>

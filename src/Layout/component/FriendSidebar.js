@@ -8,7 +8,7 @@ import {
   faUserCircle,
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
-import { friendsAccept, friendsDecline, friendsPending, friendsRequest } from '../../features/user/userSlice';
+import { fetchFriendsList, friendsAccept, friendsDecline, friendsPending, friendsRequest } from '../../features/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'js-cookie';
 const Sidebar = styled.div`
@@ -217,14 +217,17 @@ const FriendSidebar = ({ friendRequests = [], friends = [] }) => {
     }
     console.log(friendsRequestList);
   };
-  const handleAccept = (requestId) => {
+  const handleAccept = async (requestId) => {
   console.log(`수락: ${requestId}`);
-  dispatch(friendsAccept({requestId, receievId}))
+  await dispatch(friendsAccept({requestId, receievId}))
+  dispatch(fetchFriendsList()); // 친구 목록 갱신
+  dispatch(friendsPending()); // 요청 목록도 갱신
 };
 
-const handleDecline = (requestId) => {
+const handleDecline = async (requestId) => {
   console.log(`거절: ${requestId}`);
-  dispatch(friendsDecline({requestId, receievId}))
+  await dispatch(friendsDecline({requestId, receievId}))
+  dispatch(friendsPending()); // 요청 목록 갱신
 }; // 실시간 친구 요청, 친구 목록 적용하는 로직 설계해야할듯.
   return (
     <Sidebar>

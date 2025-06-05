@@ -6,7 +6,7 @@ import LoginPage from "../pages/LoginPage/LoginPage";
 import MyPage from "../pages/MyPage/MyPage";
 import RegisterPage from "../pages/RegisterPage/RegisterPage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
-
+import GroupCalendar from "../pages/GroupCalendarPage/GroupCalendar";
 const AppRouter = () => {
   return (
     <Routes>
@@ -16,6 +16,7 @@ const AppRouter = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/calendar/:groupId" element={<GroupCalendar/>} />
       </Route>
 
       {/* NotFoundPage를 처리하는 라우트 */}

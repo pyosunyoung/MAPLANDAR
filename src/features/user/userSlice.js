@@ -288,8 +288,8 @@ export const friendsDecline = createAsyncThunk(
   }
 );
 
-export const friendsList = createAsyncThunk(
-  'user/friendsList',
+export const fetchFriendsList = createAsyncThunk(
+  'user/fetchFriendsList',
   async (_, { dispatch, rejectWithValue }) => {
     try {
       
@@ -302,6 +302,8 @@ export const friendsList = createAsyncThunk(
     }
   }
 );
+
+
 
 const userSlice = createSlice({
   name: 'user',
@@ -402,15 +404,16 @@ const userSlice = createSlice({
         state.loading = false;
         state.loginError = action.payload;
       })
-      .addCase(friendsList.pending, (state) => {
+      .addCase(fetchFriendsList.pending, (state) => {
         state.loading = true;
       })
-      .addCase(friendsList.fulfilled, (state, action) => {
+      .addCase(fetchFriendsList.fulfilled, (state, action) => {
+
         state.loading = false;
         state.friendsList = action.payload.data;
         state.loginError = null;
       })
-      .addCase(friendsList.rejected, (state, action) => {
+      .addCase(fetchFriendsList.rejected, (state, action) => {
         state.loading = false;
         state.loginError = action.payload;
       })
