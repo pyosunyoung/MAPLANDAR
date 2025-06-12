@@ -81,9 +81,6 @@ const { profile, userRole } = useSelector((state) => state.user);
   console.log("cookie",cookie);
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
-    const token = Cookies.get('JSESSIONID');
-    console.log("cookie",cookie);
-    console.log("profile", profile);
   };
   
 

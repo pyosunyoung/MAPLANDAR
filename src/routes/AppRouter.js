@@ -7,6 +7,7 @@ import MyPage from "../pages/MyPage/MyPage";
 import RegisterPage from "../pages/RegisterPage/RegisterPage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import GroupCalendar from "../pages/GroupCalendarPage/GroupCalendar";
+import RecommendationResultPage from '../pages/GroupCalendarPage/components/RecommendationResultPage';
 const AppRouter = () => {
   return (
     <Routes>
@@ -17,6 +18,7 @@ const AppRouter = () => {
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/calendar/:groupId" element={<GroupCalendar/>} />
+        <Route path="/recommendation-results" element={<RecommendationResultPage />} /> 
       </Route>
 
       {/* NotFoundPage를 처리하는 라우트 */}

@@ -18,7 +18,7 @@ import Cookies from 'js-cookie';
 import { fetchCalendarList } from '../features/calendar/calendarSlice';
 const Container = styled.div`
   margin: 0 auto;
-  max-width: 70rem;
+  max-width: 80rem;
   position: relative;
 `;
 const Logo = styled.div`

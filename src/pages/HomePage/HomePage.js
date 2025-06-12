@@ -230,7 +230,7 @@ const HomePage = () => {
   {Array.isArray(calendarList) && calendarList.length > 0 ? (
     calendarList.map((item, idx) => {
       const emoji = getEmojiByGroupId(item?.groupId);
-      const isOwner = item?.ownerId === profile.userId;
+      const isOwner = item?.ownerId === profile?.userId;
       const formattedDate = new Date(item?.createdAt).toLocaleDateString();
 
       return (
