@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import FriendModal from './Modal/FriendModal';
 import { useNavigate } from 'react-router-dom';
 import { FaUserFriends, FaEllipsisV } from 'react-icons/fa';
-import { fetchCalendarList } from '../../features/calendar/calendarSlice';
+import { deleteCalendar, fetchCalendarList } from '../../features/calendar/calendarSlice';
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -62,132 +63,195 @@ const GroupSection = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.8rem; /* 폰트 크기 키움 */
+  font-weight: 700; /* 더 두껍게 */
+  color: #222; /* 좀 더 진한 색상 */
+  margin-bottom: 1.5rem; /* 아래 여백 증가 */
+  position: relative; /* 가상 요소를 위한 position 설정 */
+  padding-bottom: 0.5rem; /* 밑줄과 텍스트 사이 간격 */
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 60px; /* 밑줄 길이 */
+    height: 4px; /* 밑줄 두께 */
+    background-color: #000; /* 검은색 밑줄 */
+    border-radius: 2px; /* 밑줄 끝을 둥글게 */
+  }
 `;
 
 const GroupGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1rem;
+  gap: 1.5rem; /* 간격 조정 */
 `;
 
 const GroupCard = styled.div`
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  position: relative;
+  background-color: #fff;
+  border-radius: 12px; /* 더 둥근 모서리 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 그림자 추가 */
+  overflow: hidden; /* 내용이 넘치지 않도록 */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 
   &:hover {
-    background-color: #f0f0f0;
+    transform: translateY(-5px); /* 호버 시 살짝 위로 */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   }
 `;
 
-const CardHeader = styled.div`
+const CalendarHeader = styled.div`
+  background-color: #333; /* 어두운 회색 */
+  color: white;
+  padding: 0.8rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 `;
 
-const HeaderLeft = styled.div`
+const CalendarDate = styled.div`
+  font-size: 1.1rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 `;
 
-const Emoji = styled.span`
+const GroupNumber = styled.span`
   font-size: 1.2rem;
+  font-weight: bold;
+  background-color: #555; /* 그룹 숫자의 배경색 */
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
 `;
 
-const HeaderRight = styled.div`
+const CalendarDay = styled.span`
+  font-size: 0.9rem;
+  opacity: 0.8;
+`;
+
+const CardContent = styled.div`
+  padding: 1rem;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  flex-grow: 1; /* 내용이 카드 높이 전체를 차지하도록 */
+  justify-content: space-between;
 `;
 
-const DateText = styled.span`
-  font-size: 0.8rem;
-  color: #999;
-`;
-
-const MenuWrapper = styled.div`
-  position: relative;
-`;
-
-const MenuButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #666;
-`;
-
-const Dropdown = styled.div`
-  position: absolute;
-  right: 0;
-  top: 1.5rem;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 0.5rem;
-  z-index: 10;
+const CardTitle = styled.h4`
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  color: #333;
 `;
 
 const TagList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.6rem; /* 태그 간격 조정 */
   margin-top: 0.75rem;
   align-items: center;
+  min-height: 40px; /* 태그가 없을 때도 공간 유지 */
 `;
 
 const TagIcon = styled(FaUserFriends)`
   color: #888;
+  font-size: 1rem;
 `;
 
 const Tag = styled.span`
-  background-color: #e0f2ff;
-  color: #007acc;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.85rem;
-  border-radius: 999px;
+  background-color: #f0e8ff;/* 연한 회색 배경 */
+  color: #7a49d1;
+ /* 진한 회색 글씨 */
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem; /* 폰트 사이즈 조정 */
+  border-radius: 20px; /* 더 둥근 태그 */
   font-weight: 500;
+  white-space: nowrap; /* 태그가 줄바꿈되지 않도록 */
+  border: 1px solid #ddd; /* 옅은 테두리 추가 */
 
+  /* 회색/검은색/흰색 테마에 맞춘 다양한 태그 색상 */
   &:nth-child(2n) {
+    background-color: #FCE3E3;
+    color: #C14444;
+  }
+  &:nth-child(3n) {
+    
     background-color: #ffe9d6;
     color: #e67e22;
   }
-
-  &:nth-child(3n) {
-    background-color: #e0ffe9;
-    color: #009e60;
-  }
-
   &:nth-child(4n) {
-    background-color: #f0e8ff;
-    color: #7a49d1;
+    background-color:#e0f2ff;
+    color: #007acc;
   }
 `;
 
 const EnterButton = styled.button`
   margin-top: 1rem;
   align-self: flex-end;
-  background-color: #000;
+  background-color: #000; /* 검은색 버튼 */
   color: #fff;
   border: none;
-  padding: 0.4rem 1rem;
-  border-radius: 999px;
+  padding: 0.6rem 1.2rem; /* 패딩 조정 */
+  border-radius: 25px; /* 더 둥근 버튼 */
   font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
 
   &:hover {
-    background-color: #333;
+    background-color: #333; /* 호버 시 진한 회색 */
   }
 `;
+
+const MenuWrapper = styled.div`
+  position: relative;
+  margin-left: auto; /* 우측 정렬 */
+`;
+
+const MenuButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white; /* 캘린더 헤더에 맞춰 흰색 */
+  font-size: 1rem;
+  padding: 0.3rem; /* 클릭 영역 확보 */
+`;
+
+const Dropdown = styled.div`
+  position: absolute;
+  right: 0;
+  top: 2rem; /* 버튼 아래로 배치 */
+  background-color: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+  z-index: 10;
+
+  button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.6rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+`;
+
+
 const HomePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -195,22 +259,32 @@ const HomePage = () => {
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
   const { profile } = useSelector((state) => state.user);
   const { calendarList } = useSelector((state) => state.calendar);
+
   const handleCreateCalender = () => {
     setShowModal(true);
   };
-  const getEmojiByGroupId = (groupId) => {
-    const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
-    return emojis[(groupId - 1) % emojis.length];
+
+  // groupId를 기반으로 숫자를 반환하도록 변경
+  const getGroupNumber = (groupId) => {
+    return (groupId % 100) || 1; // 간단하게 그룹 ID의 마지막 두 자리 또는 1
   };
 
-  const handleDelete = (groupId) => {
-    console.log("Delete group:", groupId);
-    // 삭제 로직 추가
+  const getDayOfWeek = (dateString) => {
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    const date = new Date(dateString);
+    return days[date.getDay()];
   };
+
+  const handleDeleteCalendar = async (groupId) => {
+    console.log("Delete group:", groupId);
+    await dispatch(deleteCalendar(groupId)).unwrap();
+    await dispatch(fetchCalendarList());
+  };
+
   useEffect(() => {
-    dispatch(fetchCalendarList()); // 비동기 캘린더 가져오기
+    dispatch(fetchCalendarList());
   }, [dispatch]);
-  
+
   return (
     <Container>
       <TitleSection>
@@ -225,64 +299,66 @@ const HomePage = () => {
       </TitleSection>
 
       <GroupSection>
-        <SectionTitle>소속 그룹</SectionTitle>
+        <SectionTitle>소속 그룹</SectionTitle> {/* 디자인이 적용된 SectionTitle */}
         <GroupGrid>
-  {Array.isArray(calendarList) && calendarList.length > 0 ? (
-    calendarList.map((item, idx) => {
-      const emoji = getEmojiByGroupId(item?.groupId);
-      const isOwner = item?.ownerId === profile?.userId;
-      const formattedDate = new Date(item?.createdAt).toLocaleDateString();
+          {Array.isArray(calendarList) && calendarList.length > 0 ? (
+            calendarList.map((item, idx) => {
+              const groupNumber = getGroupNumber(item?.groupId); // 이모지 대신 숫자 사용
+              const isOwner = item?.ownerId === profile?.userId;
+              const createdAtDate = new Date(item?.createdAt);
+              const formattedMonthDay = `${createdAtDate.getMonth() + 1}/${createdAtDate.getDate()}`;
+              const formattedDayOfWeek = getDayOfWeek(item?.createdAt);
 
-      return (
-        <GroupCard key={idx} onClick={() => navigate(`/calendar/${item?.groupId}`)}>
-          <CardHeader>
-            <HeaderLeft>
-              <Emoji>{emoji}</Emoji>
-            </HeaderLeft>
+              return (
+                <GroupCard key={idx} onClick={() => navigate(`/calendar/${item?.groupId}`)}>
+                  <CalendarHeader>
+                    <CalendarDate>
+                      <GroupNumber>{groupNumber}</GroupNumber> {/* 숫자 컴포넌트 사용 */}
+                      <span>{formattedMonthDay}</span>
+                      <CalendarDay>({formattedDayOfWeek})</CalendarDay>
+                    </CalendarDate>
+                    {isOwner && (
+                      <MenuWrapper onClick={(e) => e.stopPropagation()}>
+                        <MenuButton onClick={() => setOpenDropdownIndex((prev) => (prev === idx ? null : idx))}>
+                          <FaEllipsisV />
+                        </MenuButton>
+                        {openDropdownIndex === idx && (
+                          <Dropdown>
+                            <button onClick={() => handleDeleteCalendar(item?.groupId)}>삭제</button>
+                          </Dropdown>
+                        )}
+                      </MenuWrapper>
+                    )}
+                  </CalendarHeader>
 
-            <HeaderRight>
-              <DateText>{formattedDate}</DateText>
-              {isOwner && (
-                <MenuWrapper onClick={(e) => e.stopPropagation()}>
-                  <MenuButton onClick={() => setOpenDropdownIndex(idx)}>
-                    <FaEllipsisV />
-                  </MenuButton>
-                  {openDropdownIndex === idx && (
-                    <Dropdown>
-                      <button onClick={() => console.log('삭제')}>삭제</button>
-                    </Dropdown>
-                  )}
-                </MenuWrapper>
-              )}
-            </HeaderRight>
-          </CardHeader>
+                  <CardContent>
+                    <CardTitle>
+                      “{item?.calendarName}”
+                    </CardTitle>
 
-          <h4>
-            <strong>“{item?.calendarName}”</strong>
-          </h4>
+                    <TagList>
+                      <TagIcon />
+                      {item?.members.map((member, index) => (
+                        <Tag key={index}>{member.name}</Tag>
+                      ))}
+                    </TagList>
 
-          <TagList>
-            <TagIcon />
-            {item?.members.map((member, index) => (
-              <Tag key={index}>{member.name}</Tag>
-            ))}
-          </TagList>
-
-          <EnterButton
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/calendar/${item?.groupId}`);
-            }}
-          >
-            입장
-          </EnterButton>
-        </GroupCard>
-      );
-    })
-  ) : (
-    <p>소속된 그룹이 없습니다. 캘린더를 생성해보세요!</p>
-  )}
-</GroupGrid>
+                    <EnterButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/calendar/${item?.groupId}`);
+                      }}
+                    >
+                      입장
+                    </EnterButton>
+                  </CardContent>
+                </GroupCard>
+              );
+            })
+          ) : (
+            <p>소속된 그룹이 없습니다. 캘린더를 생성해보세요!</p>
+          )}
+        </GroupGrid>
       </GroupSection>
       <FriendModal
         show={showModal}

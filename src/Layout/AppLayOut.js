@@ -261,9 +261,9 @@ const AppLayout = ({ setAuthenticate }) => {
           <FooterColumn>
             <div style={{ fontWeight: 700, fontSize: '20px' }}>MAPLANDAR</div>
             <div style={{ marginTop: '10px' }}>
-              청년-기업 실무 교류를 위한 단기 프로젝트 매칭 플랫폼으로,
-              학생들에게는 실무 경험을<br></br>
-              기업에게는 인재 발굴의 기회를 제공합니다.
+              <strong>우리의 만남을 더 쉽게, 더 가까이.</strong><br/>
+              공유 캘린더로 일정을 손쉽게 관리하고, 위치를 기반으로 중간 지점을 추천받아<br/>
+              모두에게 편한 약속 장소를 찾아보세요.
             </div>
           </FooterColumn>
           <FooterColumn>

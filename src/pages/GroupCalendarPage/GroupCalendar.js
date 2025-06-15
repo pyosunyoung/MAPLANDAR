@@ -7,7 +7,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import koLocale from '@fullcalendar/core/locales/ko';
 import { Button, Modal, Form } from 'react-bootstrap';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaCalendarAlt } from 'react-icons/fa';
 import styled from 'styled-components';
 import image from '../../common/images/장소 추천.gif';
 import {
@@ -96,7 +96,7 @@ const FullCalendarWrapper = styled.div`
     align-items: center;
   }
   .fc .fc-toolbar-title {
-  
+    
     font-size: 1.8em; /* 날짜 제목 크기 */
     font-weight: 700; /* 날짜 제목 굵게 */
     color: #ffffff; /* 날짜 제목 색상 흰색 */
@@ -144,9 +144,9 @@ const FullCalendarWrapper = styled.div`
 
   /* 날짜 셀 */
   .fc .fc-daygrid-day {
-    background-color: #ffffff; /* 날짜 셀 배경색 */
+    
     border: 1px solid #f0f0f0; /* 셀 경계선 */
-    border-width: 0 1px 1px 0; /* 우측과 하단에만 경계선 */
+    border-width: 1px 1px 1px 0; /* 우측과 하단에만 경계선 */
     
     &:nth-child(7n) { /* 일요일 */
       border-right: none;
@@ -174,6 +174,7 @@ const FullCalendarWrapper = styled.div`
   
   /* 오늘 날짜 셀 */
   .fc .fc-day-today {
+  
     background-color: #e6f7ff; /* 오늘 날짜 배경색 */
     border-color: #91d5ff; /* 오늘 날짜 경계선 색상 */
     box-shadow: inset 0 0 0 2px #91d5ff; /* 강조 테두리 */
@@ -181,8 +182,7 @@ const FullCalendarWrapper = styled.div`
 
   /* 이벤트 스타일 */
   .fc-event {
-    background-color: var(--event-bg-color, #d3d3d3); /* CSS 변수를 통해 색상 적용, 기본값 회색 */
-    border-color: var(--event-border-color, #d3d3d3); /* CSS 변수를 통해 색상 적용, 기본값 회색 */
+  
     border-radius: 5px; /* 이벤트 모서리 둥글게 */
     padding: 3px 6px; /* 이벤트 내부 패딩 */
     margin-bottom: 3px; /* 이벤트 간 간격 */
@@ -200,8 +200,13 @@ const FullCalendarWrapper = styled.div`
   }
 
   /* FullCalendar 자체 오버레이 숨기기 (원하는 경우) */
-  .fc-popover {
-    z-index: 1000; /* 오버레이 z-index */
+  // .fc-popover {
+  //   z-index: 1000; /* 오버레이 z-index */
+  
+  // }
+  .fc a {
+    text-decoration: none !important;
+    color: inherit;
   }
 
 `;
@@ -239,13 +244,62 @@ const Overlay = styled.div`
 const GroupHeader = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
 `;
 
 const GroupTitleInput = styled.input`
   font-size: 24px;
   margin-right: 10px;
+  padding: 8px 12px; /* 패딩을 더 주어 입력 필드를 더 보기 좋게 */
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem; /* 조금 더 둥근 모서리 */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  &:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(0,123,255,.25);
+  }
 `;
+
+// ✨ 디자인이 강화된 그룹명 섹션 ✨
+const StyledGroupNameWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px; /* 아이콘과 텍스트 사이 간격 */
+  margin-right: 15px; /* 편집 아이콘과의 간격 조정 */
+  padding: 5px 0; /* 세로 패딩으로 공간감 부여 */
+  /* background-color: #f8f9fa; /* 배경색으로 섹션 강조 (선택 사항) */
+  /* border-radius: 8px; /* 배경색 사용 시 둥근 모서리 */
+  /* padding: 10px 15px; */ /* 배경색 사용 시 패딩 */
+`;
+
+const StyledCalendarIcon = styled(FaCalendarAlt)` /* FaCalendarAlt 아이콘 스타일링 */
+  font-size: 26px; /* 아이콘 크기 */
+  color: black; /* 메인 색상 (파란색) 또는 어울리는 색상 */
+  /* background-color: #e9f5ff; */ /* 아이콘 배경 (선택 사항) */
+  /* padding: 6px; */
+  /* border-radius: 50%; */
+`;
+
+const StyledGroupNameText = styled.h2`
+  font-size: 32px; /* 제목 폰트 크기를 더 키웁니다 */
+  font-weight: 800; /* 매우 두껍게 */
+  color: #212529; /* 거의 검정에 가까운 진한 색상 */
+  margin: 0; /* h2 기본 마진 제거 */
+  letter-spacing: -0.7px; /* 한글 자간 조정 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05); /* 은은한 텍스트 그림자 */
+`;
+
+const StyledEditIcon = styled(FaEdit)`
+  font-size: 20px; /* 편집 아이콘 크기 */
+  color: #6c757d; /* 회색 톤 */
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  &:hover {
+    color: #007bff; /* 호버 시 색상 변경 */
+  }
+`;
+
 
 // const ParticipantBox = styled.div`
 //   background: #f9f9f9;
@@ -464,7 +518,27 @@ const PlaceRecommendModalHeader = styled.div`
     margin: 0;
   }
 `;
+const PlaceTypeButtonWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 10px 20px 20px 0;
+`;
 
+const PlaceTypeButton = styled.button`
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  background-color: ${({ $isActive }) => ($isActive ? '#F7B7B7' : '#f0f0f0')};
+  color: ${({ $isActive }) => ($isActive ? '#A83232' : '#555')};
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: ${({ $isActive }) => ($isActive ? '#f49c9c' : '#e0e0e0')};
+  }
+`;
 const PlaceInfoList = styled.div`
   flex-grow: 1;
   overflow-y: auto;
@@ -599,6 +673,9 @@ const GroupCalendarPage = () => {
   const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [showResultModal, setShowResultModal] = useState(false);
   const [recommendedPlaces, setRecommendedPlaces] = useState([]);
+
+  const [selectedPlaceType, setSelectedPlaceType] = useState('cafes'); // 기본값: 카페
+   const [selectedPlaceTypeKR, setSelectedPlaceTypeKR] = useState('카페'); // 기본값: 카페
   useEffect(() => {
     dispatch(fetchCalendarDetail(groupId));
     dispatch(fetchSchedules(groupId));
@@ -819,7 +896,10 @@ const GroupCalendarPage = () => {
       try {
         // 실제 API 호출 (예시: loactionRecommend 액션)
         console.log("그룹 payload ", payload )
-        const result = await dispatch(loactionRecommend(payload)).unwrap();
+        const result = await dispatch(loactionRecommend({
+  payload,
+  location: selectedPlaceType
+})).unwrap();
         console.log('장소 추천 API 결과:', result);
         
         // --- 백엔드 연동 시뮬레이션 (15초 로딩) ---
@@ -840,7 +920,7 @@ const GroupCalendarPage = () => {
         setShowLoadingModal(false); // 로딩 모달 닫기
         navigate('/recommendation-results', { 
             state: { recommendedPlaces: result.recommendedPlaces, groupId: groupId, userMember: result.userNames, title:result.title
-              ,selectedUserPlaces: selectedUserPlaces
+              ,selectedUserPlaces: selectedUserPlaces, location: selectedPlaceTypeKR
             } 
         }); // 추천 결과와 groupId를 state로 전달
 
@@ -894,13 +974,13 @@ const GroupCalendarPage = () => {
             </>
           ) : (
             <>
-              <h2 style={{ marginRight: '10px' }}>
-                {calendarDetail?.groupName}
-              </h2>
-              <FaEdit
-                style={{ cursor: 'pointer' }}
-                onClick={handleTitleEditClick}
-              />
+              <StyledGroupNameWrapper>
+            <StyledCalendarIcon /> {/* 캘린더 아이콘 */}
+            <StyledGroupNameText>
+              {calendarDetail?.groupName}
+            </StyledGroupNameText>
+          </StyledGroupNameWrapper>
+          <StyledEditIcon onClick={handleTitleEditClick} /> {/* 편집 아이콘 */}
             </>
           )}
           <div style={{ marginLeft: 'auto' }}>
@@ -1010,6 +1090,7 @@ const GroupCalendarPage = () => {
             onDeleteClick={handleDeleteSchedule}
             onClose={() => setShowListModal(false)}
             availableUserColors={userColors} // 색상 배열 전달
+            profile={profile}
           />
         </Modal>
       )}
@@ -1048,8 +1129,26 @@ const GroupCalendarPage = () => {
             <PlaceRecommendModalHeader>
               <h4>장소 추천받을 사용자 선택</h4>
               <p>(최소 2명 이상 선택)</p>
+              
             </PlaceRecommendModalHeader>
-            
+            <PlaceTypeButtonWrapper>
+  <PlaceTypeButton
+    $isActive={selectedPlaceType === 'cafes'}
+    onClick={() => {setSelectedPlaceType('cafes');
+      setSelectedPlaceTypeKR('카페');
+    }}
+  >
+    ☕ 카페
+  </PlaceTypeButton>
+  <PlaceTypeButton
+    $isActive={selectedPlaceType === 'foods'}
+    onClick={() => {setSelectedPlaceType('foods')
+      setSelectedPlaceTypeKR('음식점');
+    }}
+  >
+    🍽️ 음식점
+  </PlaceTypeButton>
+</PlaceTypeButtonWrapper>
             <PlaceInfoList>
               {placeInfoForDate.length > 0 ? (
                 placeInfoForDate.map((info, index) => (

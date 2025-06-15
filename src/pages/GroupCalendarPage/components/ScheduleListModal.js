@@ -1,6 +1,15 @@
 // components/ScheduleListModal.jsx
 import React, { useMemo } from 'react'; // useMemo 추가
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faUserPlus,
+  faSearch,
+  faUserCircle,
+  faUser,
+  faClock,
+  faLocationDot,
+} from '@fortawesome/free-solid-svg-icons';
 // import { Button } from 'react-bootstrap'; // React-Bootstrap 제거
 
 // 이 부분은 캘린더에서 사용자 컬러를 결정하는 배열입니다.
@@ -132,6 +141,7 @@ const ScheduleListModal = ({
   onClose,
   // userColors prop을 받도록 추가
   availableUserColors = userColors, // 기본값 설정 (상위에서 prop으로 전달받지 않을 경우)
+  profile
 }) => {
 
   // useMemo를 사용하여 userColorMap을 한 번만 계산하도록 최적화
@@ -172,11 +182,12 @@ const ScheduleListModal = ({
                 {members.find((m) => m.userId === schedule.creatorId)?.name || '알 수 없음'}
               </UserInfo>
               <TimeLocationInfo>
-                {schedule.startDatetime?.substring(11, 16)} - {schedule.endDatetime?.substring(11, 16)} | {schedule.address || '위치 정보 없음'}
+                <FontAwesomeIcon icon={faClock}/> {schedule.startDatetime?.substring(11, 16)} - {schedule.endDatetime?.substring(11, 16)} | <FontAwesomeIcon icon={faLocationDot}/> {schedule.address || '위치 정보 없음'}
               </TimeLocationInfo>
               <TitleText>{schedule.title}</TitleText>
               {/* 이미지에는 없지만, 수정/삭제 버튼 기능 유지를 위해 아래 ActionButtons에 배치 */}
-              <ActionButtons>
+              
+              {profile.userId == schedule.creatorId && <ActionButtons>
                 <button
                   style={{ background: 'none', border: 'none', color: '#666', fontSize: '0.8rem', cursor: 'pointer' }}
                   onClick={() => onEditClick(schedule)}
@@ -189,7 +200,7 @@ const ScheduleListModal = ({
                 >
                   삭제
                 </button>
-              </ActionButtons>
+              </ActionButtons>}
             </ScheduleItem>
           ))
         ) : (

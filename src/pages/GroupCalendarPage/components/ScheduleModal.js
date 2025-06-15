@@ -278,7 +278,7 @@ const ScheduleModal = ({
 
       <InputGroup>
         <StyledInput
-          placeholder="위치"
+          placeholder="위치 (예 : 봉서산로 85)"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
         />

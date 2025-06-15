@@ -290,7 +290,7 @@ const RecommendationResultPage = () => {
   const [placeTitle, setPlaceTitle] = useState('');
   const [keyword, setKeyword] = useState('');
   const [displayedPlaces, setDisplayedPlaces] = useState([]); // 지도에 표시되고 목록에 나타날 장소들 (추천 or 검색 결과)
-
+  const [locationPlaces, setLocationPlaces] = useState('');
   // 마커 제거 함수
   const removeMarkers = useCallback(() => {
     Object.values(markers.current).forEach(marker => marker.setMap(null));
@@ -370,7 +370,7 @@ const RecommendationResultPage = () => {
         })
       );
     });
-
+    
     return markerPosition;
   }, [dispatch]);
 
@@ -409,7 +409,7 @@ const RecommendationResultPage = () => {
     if (location.state && location.state.recommendedPlaces) {
       setRecommendedPlaces(location.state.recommendedPlaces);
       setDisplayedPlaces(location.state.recommendedPlaces); // 초기에는 추천 장소를 displayedPlaces로 설정
-
+      
       if (location.state.selectedUserPlaces && location.state.selectedUserPlaces.userAddresses) {
         const processedUserPlaces = Object.entries(location.state.selectedUserPlaces.userAddresses).map(([userName, address]) => ({
           userName: userName,
@@ -436,6 +436,7 @@ const RecommendationResultPage = () => {
           status: 'success',
         })
       );
+      setLocationPlaces(location.state.location)
     } else {
       dispatch(
         showToastMessage({
@@ -672,7 +673,7 @@ const RecommendationResultPage = () => {
 
       <RecommendationTitle>{placeTitle}</RecommendationTitle>
       <p style={{ textAlign: 'center', color: '#555', marginBottom: '30px' }}>
-        에 맞는 장소를 추천해요
+        선택하신 {locationPlaces}에 맞는 장소를 추천해요!
       </p>
 
       <RecommendationGrid>

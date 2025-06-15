@@ -263,7 +263,7 @@ const handleDecline = async (requestId) => {
       <FriendList>
         {friendsList?.map((friend, index) => (
           <FriendItem key={index}>
-            <span>{friend?.name}</span>
+            <span><FontAwesomeIcon icon={faUser} /> {friend?.name}</span>
             {/* <Status isActive={friend?.status === '게임 중'}>
               {friend?.status}
             </Status> */}

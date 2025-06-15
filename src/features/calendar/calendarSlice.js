@@ -41,6 +41,32 @@ export const createCalendar = createAsyncThunk(
   }
 );
 
+export const deleteCalendar= createAsyncThunk(
+  'calendar/Calendar',
+  async (groupId, { dispatch, rejectWithValue }) => {
+    try{
+      await api.delete(`/api/groups/${groupId}`);
+      dispatch(
+        showToastMessage({
+          message: '캘린더를 삭제했습니다.',
+          status: 'success',
+        })
+      );
+    return groupId;
+    } catch (error) {
+      dispatch(
+        showToastMessage({
+          message: '캘린더 삭제 실패',
+          status: 'error',
+        })
+      );
+      return rejectWithValue(
+        error.response?.data || '캘린더 삭제 실패.'
+      );
+    }
+  }
+);
+
 export const fetchCalendarList = createAsyncThunk(
   'calendar/fetchCalendarList',
   async (_, { dispatch, rejectWithValue }) => {
@@ -274,18 +300,18 @@ export const updateGroupName = createAsyncThunk(
 );
 export const loactionRecommend = createAsyncThunk(
   'calendar/loactionRecommend',
-  async (payload, { dispatch, rejectWithValue }) => {
-    console.log("payload값",payload);
+  async ({payload, location}, { dispatch, rejectWithValue }) => {
+    console.log("payload값, location값",payload,location);
     try {
       // console.log("uservalues", values);
-      const response = await api.post('/api/locations/recommend', 
+      const response = await api.post(`/api/locations/recommend/${location}`, 
         payload,
       );
 
       dispatch(
         showToastMessage({
-          message: '장소 추천을 성공했습니다!',
-          status: 'success',
+          message: '장소를 추천 중입니다...',
+          status: 'info',
         })
       );
       console.log("장소 추천 데이터",response.data);
