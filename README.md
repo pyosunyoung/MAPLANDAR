@@ -53,7 +53,7 @@ MAP + PLAN + CALENDAR = MAPLANDAR
 
 ---
 
-## 🌐 배포 / 외부 링크
+## 🌐 외부 링크
 
 - **Notion 전체 문서** : [노션 바로가기](https://www.notion.so/1c690d0318b780aa976cd913b5097a41)
 - **Notion 개인 기여 문서** : [노션 바로가기](https://www.notion.so/MAPLANDAR-272fbb5624cd80f4965fd733a8aad156)  
