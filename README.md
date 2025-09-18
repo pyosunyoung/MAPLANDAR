@@ -44,7 +44,8 @@
 ### Backend
 - Spring Boot
 - Spring Data JPA, MySQL
-
+- KaKao Map API
+  
 ### Collaboration & Tools
 - Git, GitHub, Notion, Figma, Postman, VS Code, IntelliJ, Draw.io
 
