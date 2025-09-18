@@ -1,5 +1,5 @@
 # MAPLANDAR
-<img width="713" height="277" alt="MAPLANDAR 로고" src="https://github.com/user-attachments/assets/5ed721e9-ebbe-48db-9dae-111c572d473e" />
+<img width="1013" height="277" alt="MAPLANDAR 로고" src="https://github.com/user-attachments/assets/5ed721e9-ebbe-48db-9dae-111c572d473e" />
 
 ---
 
@@ -30,7 +30,7 @@
 | 홍성우 | PM(팀장) | [GitHub]() |
 | 표선영 | FE | [GitHub]() |
 | 최준서 | BE | [GitHub]() |
-| 정예린 | DM | [GitHub]() |
+| 정예린 | DE | [GitHub]() |
 
 ---
 
