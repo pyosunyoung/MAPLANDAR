@@ -55,7 +55,7 @@ MAP + PLAN + CALENDAR = MAPLANDAR
 
 ## 🌐 외부 링크
 
-- **Notion 전체 문서** : [노션 바로가기](https://www.notion.so/1c690d0318b780aa976cd913b5097a41)
+- **Notion 팀 문서** : [노션 바로가기](https://www.notion.so/1c690d0318b780aa976cd913b5097a41)
 - **Notion 개인 기여 문서** : [노션 바로가기](https://www.notion.so/MAPLANDAR-272fbb5624cd80f4965fd733a8aad156)  
 - **시연 영상 (YouTube)** : [보러가기](https://www.youtube.com/watch?v=CsLGKEjiS44)  
 - **GitHub Repo**
