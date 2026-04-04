@@ -185,7 +185,7 @@ export const fetchSchedulesByDate = createAsyncThunk(
   async ({ groupId, clickedDate }, { dispatch, rejectWithValue }) => {
     try {
       console.log(clickedDate);
-      const response = await api.get(`/api/groups/${groupId}/schedules`,{}, {
+      const response = await api.get(`/api/groups/${groupId}/schedules`, {
         params: { date: clickedDate },
       });
       console.log('날짜별 일정 조회', response.data);
@@ -436,13 +436,13 @@ const calendarSlice = createSlice({
       // })
       .addCase(updateSchedule.fulfilled, (state, action) => {
         state.schedules = state.schedules.map((schedule) =>
-          schedule.id === action.payload.id ? action.payload : schedule
+          schedule.scheduleId === action.payload.scheduleId ? action.payload : schedule
         );
       })
       // 일정 삭제
       .addCase(deleteSchedule.fulfilled, (state, action) => {
         state.schedules = state.schedules.filter(
-          (schedule) => schedule.id !== action.payload
+          (schedule) => schedule.scheduleId !== action.payload
         );
       });
   },

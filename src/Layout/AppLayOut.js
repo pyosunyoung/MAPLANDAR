@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faUser,
-  faBars,
-  faBell,
-  faUserFriends,
-} from '@fortawesome/free-solid-svg-icons';
-import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'; // 추가
+import { faBell, faUserFriends } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components';
 import UserProfileBox from '../Layout/component/UserProfile';
 import ToastMessage from '../common/ToastMessage';
 import FriendSidebar from './component/FriendSidebar';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchFriendsList, fetchUserProfile, friendsList, friendsPending } from '../features/user/userSlice';
-import Cookies from 'js-cookie';
+import { useDispatch } from 'react-redux';
+import {
+  fetchFriendsList,
+  fetchUserProfile,
+  friendsPending,
+} from '../features/user/userSlice';
 import { fetchCalendarList } from '../features/calendar/calendarSlice';
+import { supabase } from '../lib/supabaseClient';
+
 const Container = styled.div`
   margin: 0 auto;
   max-width: 80rem;
   position: relative;
 `;
+
 const Logo = styled.div`
   display: flex;
   align-items: center;
@@ -30,6 +31,7 @@ const Logo = styled.div`
   color: black;
   text-decoration: none;
 `;
+
 const Navbar = styled.nav`
   display: flex;
   justify-content: space-between;
@@ -57,7 +59,7 @@ const ButtonGroup = styled.div`
   gap: 20px;
 `;
 
-const Button = styled.div`
+const IconButton = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -69,6 +71,7 @@ const Button = styled.div`
     margin-bottom: 5px;
   }
 `;
+
 const AlarmIconButton = styled.button`
   background: none;
   border: none;
@@ -87,9 +90,10 @@ const AuthButton = styled.button`
   border: none;
   cursor: pointer;
   background-color: ${(props) =>
-    props.variant === 'filled' ? '#1F1F1F' : '#F4F4F4'};
+    props.variant === 'filled' ? '#1f1f1f' : '#f4f4f4'};
   color: ${(props) => (props.variant === 'filled' ? '#fff' : '#000')};
 `;
+
 const SideMenu = styled.div`
   height: 100vh;
   width: ${(props) => (props.open ? '300px' : '0')};
@@ -99,7 +103,7 @@ const SideMenu = styled.div`
   background-color: #f5f6f8;
   overflow-x: hidden;
   transition: width 0.5s ease;
-  padding-top: 0px;
+  padding-top: 0;
   z-index: 2;
 `;
 
@@ -114,27 +118,6 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
-const SideMenuList = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-left: 20px;
-
-  button {
-    margin: 5px;
-    border: none;
-    background: none;
-    width: 120px;
-    color: white;
-    cursor: pointer;
-    transition: 0.3s;
-
-    &:hover {
-      background-color: black;
-      border-radius: 3px;
-    }
-  }
-`;
 const UserBox = styled.div`
   display: flex;
   align-items: center;
@@ -142,6 +125,7 @@ const UserBox = styled.div`
   font-family: 'Inter';
   font-size: 14px;
 `;
+
 const Footer = styled.footer`
   border-top: 1px solid #e5e7eb;
   color: black;
@@ -164,32 +148,62 @@ const FooterColumn = styled.div`
   margin-bottom: 24px;
 `;
 
-const BurgerMenu = styled(FontAwesomeIcon)`
-  font-size: 30px;
-  margin: 20px;
-  cursor: pointer;
-`;
+const loadAuthenticatedData = (dispatch) => {
+  dispatch(fetchUserProfile());
+  dispatch(friendsPending());
+  dispatch(fetchFriendsList());
+  dispatch(fetchCalendarList());
+};
 
-const AppLayout = ({ setAuthenticate }) => {
+const AppLayout = () => {
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuList = ['공지사항', '내정보', '매칭', 'AI매칭'];
-  const authenticate = true;
   const dispatch = useDispatch();
-  const cookie = Cookies.get('JSESSIONID');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   useEffect(() => {
-  if (cookie) {
-    dispatch(fetchUserProfile());
-    dispatch(friendsPending());// 친구 요청창 불러옴
-    dispatch(fetchFriendsList()); // 친구 리스트 불러옴
-    dispatch(fetchCalendarList());
-  } 
-}, [dispatch, cookie]);
+    let isMounted = true;
+
+    const syncSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!isMounted) {
+        return;
+      }
+
+      const hasSession = Boolean(session?.access_token);
+      setIsAuthenticated(hasSession);
+
+      if (hasSession) {
+        loadAuthenticatedData(dispatch);
+      }
+    };
+
+    syncSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const hasSession = Boolean(session?.access_token);
+      setIsAuthenticated(hasSession);
+
+      if (hasSession) {
+        loadAuthenticatedData(dispatch);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [dispatch]);
+
   return (
     <Container>
       <ToastMessage />
       <Navbar>
-        {/* 왼쪽: 로고 */}
         <LeftSection>
           <Link to="/" style={{ textDecoration: 'none' }}>
             <Logo>
@@ -199,32 +213,26 @@ const AppLayout = ({ setAuthenticate }) => {
           </Link>
         </LeftSection>
 
-        {/* 오른쪽: 로그인 / 햄버거 */}
         <RightSection>
-          {cookie ? (
-            <>
-              <ButtonGroup>
-                <AlarmIconButton onClick={() => alert('알림창 열기')}>
-                  <FontAwesomeIcon icon={faBell} />
-                </AlarmIconButton>
-                <UserBox>
-                  <UserProfileBox />
-                </UserBox>
-                <Button onClick={() => setMenuOpen(true)}>
-                  <FontAwesomeIcon icon={faUserFriends} />
-                  <div>친구창</div>
-                </Button>
-              </ButtonGroup>
-            </>
+          {isAuthenticated ? (
+            <ButtonGroup>
+              <AlarmIconButton onClick={() => alert('알림 기능은 준비 중입니다.')}>
+                <FontAwesomeIcon icon={faBell} />
+              </AlarmIconButton>
+              <UserBox>
+                <UserProfileBox />
+              </UserBox>
+              <IconButton onClick={() => setMenuOpen(true)}>
+                <FontAwesomeIcon icon={faUserFriends} />
+                <div>친구창</div>
+              </IconButton>
+            </ButtonGroup>
           ) : (
             <ButtonGroup>
               <AuthButton variant="outlined" onClick={() => navigate('/login')}>
                 Sign
               </AuthButton>
-              <AuthButton
-                variant="filled"
-                onClick={() => navigate('/register')}
-              >
+              <AuthButton variant="filled" onClick={() => navigate('/register')}>
                 Register
               </AuthButton>
             </ButtonGroup>
@@ -232,37 +240,24 @@ const AppLayout = ({ setAuthenticate }) => {
         </RightSection>
       </Navbar>
 
-      {/* <SideMenu open={menuOpen}>
-        <CloseButton onClick={() => setMenuOpen(false)}>&times;</CloseButton>
-        <SideMenuList>
-          {menuList.map((menu, index) => (
-            <button key={index}>{menu}</button>
-          ))}
-        </SideMenuList>
-      </SideMenu> */}
       <SideMenu open={menuOpen}>
-  <CloseButton onClick={() => setMenuOpen(false)}>&times;</CloseButton>
-  <FriendSidebar
-    friendRequests={[
-      { name: '김철수' },
-      { name: '박영희' },
-    ]}
-    friends={[
-      { name: '홍길동', status: '게임 중' },
-      { name: '이순신', status: '오프라인' },
-    ]}
-  />
-</SideMenu>
+        <CloseButton onClick={() => setMenuOpen(false)}>&times;</CloseButton>
+        <FriendSidebar />
+      </SideMenu>
+
       <main>
         <Outlet />
       </main>
+
       <Footer>
         <FooterInner>
           <FooterColumn>
             <div style={{ fontWeight: 700, fontSize: '20px' }}>MAPLANDAR</div>
             <div style={{ marginTop: '10px' }}>
-              <strong>우리의 만남을 더 쉽게, 더 가까이.</strong><br/>
-              공유 캘린더로 일정을 손쉽게 관리하고, 위치를 기반으로 중간 지점을 추천받아<br/>
+              <strong>우리의 만남을 더 쉽게, 더 가깝게.</strong>
+              <br />
+              공유 캘린더로 일정을 효율적으로 관리하고 위치를 기반으로 중간 지점을 추천받아
+              <br />
               모두에게 편한 약속 장소를 찾아보세요.
             </div>
           </FooterColumn>
@@ -285,10 +280,8 @@ const AppLayout = ({ setAuthenticate }) => {
             <div>FAQ</div>
           </FooterColumn>
         </FooterInner>
-        <div
-          style={{ textAlign: 'center', marginTop: '24px', color: '#9CA3AF' }}
-        >
-          © 2025 MAPLANDAR. All rights reserved.
+        <div style={{ textAlign: 'center', marginTop: '24px', color: '#9ca3af' }}>
+          2025 MAPLANDAR. All rights reserved.
         </div>
       </Footer>
     </Container>

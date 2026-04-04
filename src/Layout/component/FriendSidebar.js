@@ -10,7 +10,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { fetchFriendsList, friendsAccept, friendsDecline, friendsPending, friendsRequest } from '../../features/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import Cookies from 'js-cookie';
 const Sidebar = styled.div`
   width: 300px;
   background-color: #f5f6f8;
@@ -203,13 +202,12 @@ const FriendSidebar = ({ friendRequests = [], friends = [] }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [receiverEmail, setEmail] = useState('');
   const dispatch = useDispatch();
-  const cookie = Cookies.get('JSESSIONID');
   const receievId = profile?.userId;
   const handleFriendRequest = () => {
     if (receiverEmail.trim()) {
       // 요청 로직 연결 (예: API 호출 또는 상태 업데이트)
       console.log(`친구 요청 전송: ${receiverEmail}`);
-      dispatch(friendsRequest({receiverEmail, cookie}))
+      dispatch(friendsRequest({receiverEmail}))
       setEmail('');
     } else {
       alert('아이디를 입력해주세요.');

@@ -1,7 +1,8 @@
 {
-  "name": "capston-project",
+  "name": "maplandar-vesu",
   "version": "0.1.0",
   "private": true,
+  "description": "MAPLANDAR frontend prepared for Vercel + Supabase lightweight deployment",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -17,6 +18,7 @@
     "@fullcalendar/timegrid": "^6.1.17",
     "@mui/icons-material": "^7.1.0",
     "@reduxjs/toolkit": "^2.6.1",
+    "@supabase/supabase-js": "^2.101.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -24,7 +26,6 @@
     "axios": "^1.8.4",
     "bootstrap": "^5.3.6",
     "formik": "^2.4.6",
-    "js-cookie": "^3.0.5",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",
@@ -42,7 +43,11 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:db:push": "supabase db push",
+    "supabase:functions:serve": "supabase functions serve app --env-file supabase/.env.local"
   },
   "eslintConfig": {
     "extends": [
@@ -61,5 +66,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "supabase": "^2.84.10"
   }
 }

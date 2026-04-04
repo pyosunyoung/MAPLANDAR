@@ -1,26 +1,35 @@
-// utils/geocode.js
-export const fetchCoordinates = async (address) => {
-  const REST_API_KEY = '16ce6c0c3bd345dd72fb1376db1eacb3';
-  const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`;
+export const fetchCoordinates = (address) =>
+  new Promise((resolve, reject) => {
+    const { kakao } = window;
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `KakaoAK ${REST_API_KEY}`,
-    },
+    if (!address?.trim()) {
+      reject(new Error('Address is required.'));
+      return;
+    }
+
+    if (!kakao?.maps?.load) {
+      reject(new Error('Kakao Maps SDK is not loaded.'));
+      return;
+    }
+
+    kakao.maps.load(() => {
+      if (!kakao.maps.services?.Geocoder) {
+        reject(new Error('Kakao geocoder is unavailable.'));
+        return;
+      }
+
+      const geocoder = new kakao.maps.services.Geocoder();
+
+      geocoder.addressSearch(address, (result, status) => {
+        if (status !== kakao.maps.services.Status.OK || !result?.length) {
+          reject(new Error('No results found.'));
+          return;
+        }
+
+        resolve({
+          latitude: parseFloat(result[0].y),
+          longitude: parseFloat(result[0].x),
+        });
+      });
+    });
   });
-
-  if (!response.ok) {
-    throw new Error('Geocoding failed');
-  }
-
-  const data = await response.json();
-  if (data.documents && data.documents.length > 0) {
-    const { x, y } = data.documents[0];
-    return {
-      latitude: parseFloat(y),
-      longitude: parseFloat(x),
-    };
-  } else {
-    throw new Error('No results found');
-  }
-};

@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-
-import Dropdown from 'react-bootstrap/Dropdown';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserProfile, friendsPending, logout } from '../../features/user/userSlice';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Cookies from 'js-cookie';
+import { logout } from '../../features/user/userSlice';
+
 const UserTab = styled.div`
   position: relative;
 `;
@@ -20,23 +16,19 @@ const UserProfile = styled.div`
   align-items: center;
   position: relative;
   gap: 0.6rem;
-  font-color: black;
+
   .user-profile-icon {
     color: gray;
-    // #6c9466
   }
 `;
 
 const UserName = styled.span`
   font-weight: bold;
-  font-size : 16px;
-  font-color: black;
-  
+  font-size: 16px;
 `;
 
 const DropdownToggle = styled.div`
   cursor: pointer;
-  
 `;
 
 const CustomDropdownMenu = styled.div`
@@ -74,46 +66,30 @@ const DropdownItem = styled.div`
 const User = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-const { profile, userRole } = useSelector((state) => state.user);
-  const [notificationCount, setNotificationCount] = useState(2);
+  const { profile } = useSelector((state) => state.user);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const cookie = Cookies.get('JSESSIONID');
-  console.log("cookie",cookie);
+
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
-  
 
   const handleLogout = () => {
-    console.log("token",cookie);
-    dispatch(logout({ cookie, navigate }));
-    // navigate("/login"); // 바로 이동
+    dispatch(logout({ navigate }));
   };
-  const handleGoMypage = () => {
-    userRole == "USER" ? navigate('/mypage/user') : navigate('/mypage/company')
-  }
+
   return (
     <UserTab>
       <UserProfile>
-        <AccountCircleIcon className="user-profile-icon" style={{marginTop:"2px"}} />
-        <UserName>{profile?.name || "표선영"}</UserName>
+        <AccountCircleIcon className="user-profile-icon" style={{ marginTop: '2px' }} />
+        <UserName>{profile?.name || '사용자'}</UserName>
 
         <DropdownToggle onClick={toggleDropdown}>
-          {isDropdownOpen ? (
-            <KeyboardArrowUpIcon />
-          ) : (
-            <KeyboardArrowDownIcon />
-          )}
+          {isDropdownOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </DropdownToggle>
 
         {isDropdownOpen && (
           <CustomDropdownMenu>
-            {/* <DropdownItem onClick={handleGoMypage}>
-              마이페이지
-            </DropdownItem> */}
-            <DropdownItem onClick={handleLogout}>
-              로그아웃
-            </DropdownItem>
+            <DropdownItem onClick={handleLogout}>로그아웃</DropdownItem>
           </CustomDropdownMenu>
         )}
       </UserProfile>

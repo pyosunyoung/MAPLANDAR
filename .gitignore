@@ -1,23 +1,34 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
 .pnp.js
-node_modules
+
 # testing
 /coverage
 
 # production
 /build
 
-# misc
-.DS_Store
+# environment
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
 
+# local tooling
+.vercel
+.supabase
+supabase/.temp
+legacy-spring-backend/.gradle
+legacy-spring-backend/build
+.codex-start.log
+.codex-start.err
+
+# misc
+.DS_Store
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
